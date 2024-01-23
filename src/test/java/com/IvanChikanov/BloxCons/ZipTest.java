@@ -21,5 +21,5 @@ public class ZipTest extends ZipService{
 
     @MockBean
     private ModuleController moduleController;
-    
+
 }
