@@ -45,7 +45,7 @@ class Cell extends CellFather
     createTools()
     {
         this.tools = HTML.createAndAppend("DIV", this.getGrid().gridElem);
-        HTML.addStyles(["grid", "gridAutoCols", "justifySelfEnd", "alignSelfEnd", "zIndex100", "gapFivePix", "padding5px", "pointer"], [this.tools]);
+        HTML.addStyles(["grid", "gridAutoCols", "justifySelfEnd", "alignSelfEnd", "zIndex600", "gapFivePix", "padding5px", "pointer"], [this.tools]);
         let del = HTML.createAndAppend("DIV", this.tools);
         del.innerHTML = "<img src = '../static/images/del.png'/>";
         del.onclick = ()=>{
@@ -58,18 +58,6 @@ class Cell extends CellFather
         add.onclick = ()=>{
             this.getGrid().addNextCell(this, this.getGrid());
         };
-        /*
-        let fullScreen = HTML.createAndAppend("DIV", this.tools);
-        fullScreen.innerHTML = "<img src = '../static/images/fs.png'/>";
-        function closeAct()
-        {
-            this.getGrid().gridElem.appendChild(this.inside);
-            this.inside.style.gridArea = this.editGridArea();
-        }
-        fullScreen.onclick = ()=>{
-            let pop = HTML.createPopup(this.inside, closeAct.bind(this));
-            HTML.addStyles(["fullScreenPopup"],[pop]);           
-        };*/
         HTML.addStyles(["oneGridTool", "justifySelfCenter", "alignSelfCenter"], [del, add])
         this.tools.style.gridArea = this.editGridArea();
     }

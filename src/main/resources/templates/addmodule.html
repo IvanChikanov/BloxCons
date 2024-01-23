@@ -56,7 +56,10 @@
                     div.style.width = child.getBoundingClientRect().width + "px";
                     div.style.height = child.getBoundingClientRect().height + "px";
                 } 
-                div.onclick = ()=>{input.click()};
+                div.onclick = ()=>{
+                    input.value = "";
+                    input.click();
+                };
                 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 div.addEventListener(eventName, (e)=> e.preventDefault(), false);
                 });

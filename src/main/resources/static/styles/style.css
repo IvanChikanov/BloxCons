@@ -91,7 +91,7 @@ body
 {
     width: 100%;
     max-width: 1280px;
-    height: 100%;
+    height: 90%;
     max-height: 80vh;
 }
 .autoWindow
@@ -108,6 +108,10 @@ body
 .zIndex100
 {
     z-index: 100;
+}
+.zIndex600
+{
+    z-index: 600;
 }
 .pointer
 {
