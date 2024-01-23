@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Создание ЭОМ</title>
+    <link rel="stylesheet" href="../static/styles/style.css"/>
+    <script type="module">
+        import {App} from "../static/system_js/mainApp.js";
+        import {HTMLFather as HTML} from "../static/system_js/HTMLFather.js";
+        document.documentElement.setAttribute("theme", "system");
+        window.addEventListener("load", ()=>{
+            let form = HTML.createAndAppend("DIV");
+            HTML.addStyles(["grid", "hvCenter", "absolute", "gapFivePix"],[form]);
+            let codeName = HTML.createAndAppend("INPUT", form);
+            let start = HTML.createAndAppend("BUTTON", form);
+            start.innerText = "Создать новый";
+            start.onclick = async ()=>
+            {
+                let store = {};
+                HTML.getValueAction(codeName, store, "name");
+                let res = await fetch("/create", {
+                    method: "POST",
+                    headers: {"Content-type":"text/html"},
+                    body: store.name}
+                );
+                let req = await res.json();
+                loadApp(req);
+            }
+            let load = HTML.createAndAppend("Button", form);
+            load.innerText = "Загрузить";
+            load.onclick = async ()=>{
+                let res = await fetch("/load_pages");
+                let req = await res.json();
+                let grid = HTML.create("div");
+                HTML.addStyles(["grid", "gapFivePix"],[grid]);
+                grid.style.gridTemplateColumns = "1";
+                let pop = HTML.createPopup();
+                req.forEach(arr => {
+                    let crDiv = HTML.createAndAppend("DIV", grid);
+                    crDiv.style = "display:flex; justify-content: space-between; align-items: center;";
+                    let span = HTML.createAndAppend("SPAN", crDiv);
+                    span.innerText = arr[1];
+                    let but = HTML.createAndAppend("BUTTON", crDiv);
+                    but.innerText = "Загрузить";
+                    but.onclick = async ()=>{
+                        let req = await fetch("/load_page/" + arr[0]);
+                        let result = await req.json();
+                        loadApp(result);                        
+                    };
+                    let player = HTML.createAndAppend("BUTTON", crDiv);
+                    player.innerText = "Плеер";
+                    player.onclick = ()=>{
+                        loadMinApp(arr[0])
+                    };
+                });
+                pop.appendChild(grid);
+                
+            };
+        });
+        function loadApp(res)
+        {
+            document.body.innerHTML = "";
+            App.preparedToStart(res);
+        }
+        function loadMinApp(id)
+        {
+            window.open(`./player/${id}`, "_blank");
+        }
+    </script>
+</head>
+<body>
+
+</body>
+</html>

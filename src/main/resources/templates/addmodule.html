@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="../static/styles/style.css"/>
+        <script>
+            var id = null;
+            var main, child;
+            var otherClasses = [];
+            var images = [];
+            document.documentElement.setAttribute("theme", "system");
+            window.addEventListener("load", ()=>{
+                document.getElementById("disp").addEventListener("change", newModule);
+                document.getElementById("updateModule").addEventListener("change", loadModule);
+                addButtonsEvents(["new_image_button", "new_other_class"]);
+                main = addForm(document.getElementById("main"));
+                child = addForm(document.getElementById("child"));
+            });
+            function newFormClick(e)
+            {
+                e.preventDefault();
+                let array = e.target.dataset.type == "other"? otherClasses : images; 
+                array.push(addForm(e.target.parentNode, e.target));
+                let delButton = document.createElement("BUTTON");
+                    delButton.innerText = "X";
+                    delButton.classList.add("absolute");
+                array[array.length - 1].addEventListener("mouseover", (e)=>{
+                    document.body.appendChild(delButton);
+                    delButton.style.top = e.target.getBoundingClientRect().top + "px";
+                    delButton.style.left = e.target.getBoundingClientRect().left + 
+                    (e.target.getBoundingClientRect().width - delButton.getBoundingClientRect().width) + "px";
+                    e.target.onmouseleave = ()=>{ document.body.removeChild(delButton)};
+                });
+            }
+            function addForm(parent, child = null)
+            {
+                let input = document.createElement("INPUT");
+                input.type = "file";
+                input.style = "width: 0.1px; height: 0.1px; padding:0; border: 0;";
+                let div = document.createElement("DIV");
+                div.style = "display:flex; align-items: center; justify-content:center; box-sizing:border-box; border: 2px solid var(--mainColor); background: var(--secondColor); margin-inline: 5px; border-radius: .4rem;";
+                div.style.flexShrink = "0";
+                div.innerText = "Файл не выбран";
+                div.dataset.type = parent.dataset.type;  
+                if(child == null)
+                {
+                    parent.appendChild(input);
+                    parent.appendChild(div);
+                    div.style = "height: 100%;";
+                    div.style.width = div.getBoundingClientRect().height + "px"; 
+                }   
+                else
+                {
+                    parent.insertBefore(input,child);
+                    parent.insertBefore(div, child);
+                    div.style.width = child.getBoundingClientRect().width + "px";
+                    div.style.height = child.getBoundingClientRect().height + "px";
+                } 
+                div.onclick = ()=>{input.click()};
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                div.addEventListener(eventName, (e)=> e.preventDefault(), false);
+                });
+                div.addEventListener("drop",(e)=>{
+                    e.preventDefault();
+                    updateDiv(e.dataTransfer.files[0], div);
+                });
+                input.onchange = (e)=>{
+                    let file = input.files[0];
+                    if(file != undefined){
+                        updateDiv(file, div);
+                    }
+                };       
+                return div;
+            }
+            function updateDiv(file, div)
+            {
+                let formData = new FormData();
+                let requestPath;
+                formData.append("mainModule_id", id);
+                if(file.type.includes("image"))
+                {
+                    let fr = new FileReader();
+                    fr.addEventListener("load", ()=>{
+                        let img = new Image();
+                        img.src = fr.result;
+                        img.style = "max-width: 90%; max-height:90%;";
+                        div.innerHTML = "";
+                        div.appendChild(img);
+                    });
+                    fr.readAsDataURL(file);
+                    requestPath = "/update_image";
+                    if(div.dataset.id)
+                    {
+                        formData.append("image_id", div.dataset.id);
+                    }
+                }
+                else
+                {
+                    div.innerText = file.name;
+                    requestPath = "/update_module_file";
+                    formData.append("type", div.dataset.type);
+                    if(div.dataset.id != undefined)
+                    {
+                        formData.append("module_id", div.dataset.id);
+                    }
+                }
+
+                formData.append("file", file);
+                fetch(`/add_module${requestPath}`, {
+                    method: "POST",
+                    body: formData
+                }).then(result => result.text()).then(text => {
+                    if(!isNaN(text)){
+                    div.dataset.id = text}
+                });
+            }
+            function addButtonsEvents(buttonsIds)
+            {
+                for(let but of buttonsIds)
+                {
+                    document.getElementById(but).style.width = document.getElementById(but).getBoundingClientRect().height + "px";
+                    document.getElementById(but).onclick = newFormClick;
+                }
+            }
+            function newModule(e)
+            {
+                e.target.removeEventListener("change", newModule);
+                e.target.addEventListener("change", updateDisplayedName);
+                elementsOn();
+                let formData = new FormData();
+                formData.append("displayedName", e.target.value);
+                formData.append("type", "main");
+                fetch("/add_module/get_empty_module", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(empty => {id = empty;})
+                .catch(err => console.error(err));
+            }
+            function updateDisplayedName(e)
+            {
+                let formData = new FormData();
+                formData.append("name", e.target.value);
+                formData.append("module_id", id);
+                fetch("/add_module/update_displayed_name", {
+                    method:"POST",
+                    body: formData
+                })
+            }
+            function loadModule(e)
+            {
+                document.getElementById("disp").removeEventListener("change", newModule);
+                document.getElementById("disp").addEventListener("change", updateDisplayedName);
+                id = e.target.value;
+                if(id == "null")
+                {
+                    location.reload();
+                }
+                fetch(`/add_module/get_saved_module/${id}`)
+                .then(response => response.json())
+                .then(json => {
+                    document.getElementById("disp").value = json.display;
+                    separateFieldData(main, json.main[0]);
+                    separateFieldData(child, json.brother[0]);
+                    for(let others of json.otherClasses)
+                    {
+                        document.getElementById("new_other_class").dispatchEvent(new Event("click"));
+                        separateFieldData(otherClasses[otherClasses.length - 1], others);
+                    }
+                    for(let img of json.images)
+                    {
+                        document.getElementById("new_image_button").dispatchEvent(new Event("click"));
+                        images[images.length - 1].innerHTML = "";
+                        let image = new Image();
+                        image.style = "max-width: 90%; max-height:90%;";
+                        image.src = `/load_image/${img}`;
+                        images[images.length - 1].appendChild(image);
+                        images[images.length - 1].dataset.id = img;
+                    }
+                    for(let option of document.getElementById("oms").options)
+                    {
+                        if(json.otherModules.includes(option.value))
+                        {
+                            option.selected = true;
+                        }
+                    }
+                })
+                .catch(err => console.error(err));
+                elementsOn();
+            }
+            function elementsOn()
+            {     
+                document.querySelectorAll(".disable").forEach(element =>
+                {
+                    element.classList.toggle("disable");
+                });
+            }
+            function separateFieldData(element, string)
+            {
+                let strArr = string.split("~~");
+                element.dataset.id = strArr[1];
+                element.innerText = strArr[0];
+            }
+        </script>
+        <style>
+            .error
+            {
+                background: rgb(201, 83, 83);
+            }
+            .container
+            {
+                width: 90%; 
+                height: 90%;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                grid-template-columns: repeat(3, 1fr); 
+                grid-template-rows: auto repeat(3, 1fr);
+                grid-template-areas: "chose inputs inputs"
+                                     "others main child"
+                                     "others other other"
+                                     "others images images";
+                gap: 10px;
+            }
+            .flexCenter
+            {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--insideInput);
+                border-radius: .4rem;
+                box-sizing: border-box;
+                border: 2px solid var(--mainColor);
+                flex-direction: column;
+
+            }
+            input[type="file"]
+            {
+                height: 50%;
+            }
+            .disable
+            {
+                pointer-events: none;
+                opacity: 40%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="grid hvCenter container absolute" >
+            <div style="grid-area: chose; display: flex; justify-content: space-between;">
+                <select id = "updateModule">
+                    <option value="null">Новый</option>
+                    <option th:each = "modul : ${moduls}" th:text = "${modul[1]}" th:value = "${modul[0]}"></option>
+                </select><button id = "deleteButton">Удалить модуль</button>
+            </div>
+            <form style="grid-area: others;" class="disable">
+            <select multiple style="padding: 20px; width: 100%; height: 100%;" class="flexCenter" name="general" id="oms">
+                <option th:each = "other : ${others}" th:text = "${other[1]}" th:value = "${other[0]}"></option>
+            </select>
+            </form> 
+            <div style="grid-area: inputs;" class="flexCenter">
+                <form>
+                    <label for="name" >Отображаемое имя:</label>
+                    <input type="text" name="name" id ="disp" required>
+                </form>
+            </div>
+            <div style="grid-area: main;" class="flexCenter disable" data-mult="single" data-type="main" id="main" >
+            </div>
+            <div style="grid-area: child;" class="flexCenter disable" data-mult="single" data-type="child" id="child">
+                </div>
+            <div style="grid-area: other; overflow-x: scroll; overflow-y: hidden; margin-right: 5px; border: 2px solid var(--mainColor); border-radius: .4rem; padding: 5px;"  class="disable">
+                <div style="display: flex; height: 100%;" data-type="other">
+                    <button style="height: 100%; flex-shrink: 0; margin-right: 5px;" id="new_other_class" data-type="other">Добавить другой класс</button>
+                </div>
+            </div>
+            <div style="grid-area: images; overflow-x: scroll; overflow-y: hidden; margin-right: 5px; border: 2px solid var(--mainColor); border-radius: .4rem; padding: 5px;"  class="disable">
+                <div style="display: flex; height: 100%;">
+                    <button style="height: 100%; flex-shrink: 0; margin-right: 5px;" id="new_image_button" data-type="pics">Добавить изображение</button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

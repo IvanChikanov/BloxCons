@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузка новых модулей</title>
+    <link rel="stylesheet" href="../static/styles/style.css"/>
+    <script type="module">
+        import {HTMLFather as HTML} from "../static/system_js/HTMLFather.js";
+        document.documentElement.setAttribute("theme", "system");
+        window.addEventListener("load", ()=>{
+            let store = {};
+            let classNameInput = document.getElementById("className");
+            let tarea1 = document.getElementById("tArea1");
+            let tarea2 = document.getElementById("tArea2");
+            for(let f of [classNameInput, tarea1, tarea2])
+            {
+                f.addEventListener("input", ()=>{ document.getElementById("saveMarker").style.background = "rgb(245, 96, 96)";});
+            }
+            classNameInput.oninput = (e)=>{
+                for(let span of document.querySelectorAll(".findSpan"))
+                {
+                    span.innerText = e.target.value;
+                }
+            };
+            let saveButton = document.getElementById("save");
+            window.addEventListener("keydown",(e)=>{
+            if(e.code == "KeyS" && e.ctrlKey)
+            {
+                e.preventDefault();
+                saveButton.dispatchEvent(new Event("click"));
+            }
+            });
+            function addSender()
+            {
+                HTML.getValueAction(classNameInput, store, "className");  
+                HTML.getValueAction(tarea1, store, "mainClass");
+                HTML.getValueAction(tarea2, store, "childClass");
+                fetch("/admin/set_new_js", {method: "POST", headers: {"Content-type": "application/json"}, body: JSON.stringify(store)}).then(result => result.text()).then(r => console.log(r));
+                document.getElementById("saveMarker").style.background = "rgb(104, 246, 123)";
+            }
+            saveButton.addEventListener("click", ()=>{
+                if(checkFields([classNameInput, tarea1, tarea2]))
+                {
+                    addSender();
+                }});
+            let select = document.getElementById("changeModule");
+            select.onchange = async (e)=>{
+                if(e.target.value == "new")
+                {
+                    store.id = null;
+                    for(let f of [classNameInput, tarea1, tarea2])
+                    {
+                        f.value = "";
+                    }
+                    classNameInput.dispatchEvent(new Event("input"));
+                }
+                else
+                {
+                    fetch(`/admin/get_js/${e.target.value}`).then(response => response.json()).then(result => {
+                        classNameInput.value = result.className;
+                        tarea1.value = result.mainClass;
+                        tarea2.value = result.childClass;
+                        store["id"] = result.id;
+                        classNameInput.dispatchEvent(new Event("input"));
+                        });
+                }
+            };
+
+        });
+        function checkFields(fields)
+        {
+           for(let field of fields)
+           {
+                if(field.value.length == 0)
+                {
+                    field.style.background = "#FA8072";
+                    setTimeout(()=>{field.style.background = "";},1500);
+                    return false;
+                }
+           }
+           return true;
+        }
+    </script>
+</head>
+<body>
+    <div class = "hCenter absolute boxShadowCenter bRadius04rem bigText" style = "width: 100%; max-width: 1280px; background: #ffffff60; backdrop-filter: blur(3px); padding: 12px;">
+        <div>
+            <div style="margin-bottom: 12px; display: flex; justify-content: space-between;">
+                <div>
+                <span>class </span><input type="text" id = "className"/><span>{</span>
+                </div>
+                <select id = "changeModule">
+                    <option value="new">new</option>
+                    <option th:each = "modul : ${moduls}" th:text = "${modul[1]}" th:value = "${modul[0]}"></option>
+                </select>
+            </div>
+            <div>
+                <textarea id = "tArea1"class="bRadius04rem borderBox background padding5px" style="width: 100%;height: 20vh; resize: vertical;"></textarea>
+            </div>
+        </div>
+        <div>
+            <div><span>}<br>class </span><span class="findSpan"></span><span>Child extends <span class="findSpan"></span>{</span></div>
+            <div>
+                <textarea id = "tArea2" class="bRadius04rem borderBox background padding5px" style="width: 100%;height: 20vh; resize: vertical;"></textarea>
+            </div>
+        </div>
+        <div><span>}<br>export {</span><span class="findSpan"></span><span>, </span><span class="findSpan"></span><span>Child</span><span>};</span></div>
+        <div style="display: flex; justify-content: center;"><button id = "save">Save</button></div>
+        <div style = "width: 10px; height: 10px; border-radius: 50%; position: absolute; bottom: 6px; right: 6px;  background: rgb(104, 246, 123);" class="saveMarker" id="saveMarker"></div>
+    </div>
+    <!--background: rgb(245, 96, 96);-->
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Просмотр ЭОМ</title>
+        <link rel="stylesheet" href="../static/styles/style.css"/>
+        <script type="module">
+            import {App} from "../static/system_js/mainApp.min.js";
+            import {HTMLFather as HTML} from "../static/system_js/HTMLFather.js";
+            window.addEventListener("load", ()=>{
+                fetch("data.json").then(response => response.json()).then(json =>{
+                    App.preparedToStart(json);
+                }).catch(er => console.error(er));
+            });
+        </script>
+    </head>
+    <body>
+
+    </body>
+</html>
