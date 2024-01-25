@@ -82,7 +82,7 @@ public class CreateAndSaveService {
         Cell cell = cellRepository.findById(id).get();
         List<ModuleUnit> units = mdlRep.getModels(cell);
         mdlRep.deleteAll(units);
-        cellRepository.delete(cell);
+        cellRepository.deleteById(cell.getId());
     }
 
     public ModuleUnit getEmptyUnit(Long cell_id)
