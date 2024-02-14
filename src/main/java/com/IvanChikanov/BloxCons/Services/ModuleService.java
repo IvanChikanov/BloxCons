@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class ModuleService implements FileCreator {
     @Autowired
     private ModuleRepository moduleRepository;
-
     @Autowired
     private OtherModulesRepo otherModulesRepo;
     @Autowired
@@ -45,7 +44,7 @@ public class ModuleService implements FileCreator {
             }
             alltext += module.getFullCode(module.getImageMap()) + "\n";
             alltext += "let mdl = " + module.getBrother().getFullCode(module.getImageMap()) + "\n";
-            for(Module m : module.getOther())
+            for(Module m : module.getOther().stream().sorted().collect(Collectors.toList()))
             {
                 alltext += m.getFullCode(module.getImageMap()) + "\n";
             }
@@ -56,6 +55,14 @@ public class ModuleService implements FileCreator {
     public void DeleteModule(Long id)
     {
         moduleRepository.deleteById(id);
+    }
+
+    public void  UpdateOtherModulesSet(Long[] ids, Long moduleId)
+    {
+        Module module = moduleRepository.findById(moduleId).get();
+        Set<OtherModules> oms = otherModulesRepo.getOtherModulesSet(Arrays.stream(ids).collect(Collectors.toList()));
+        module.UpdateGenerals(oms);
+        moduleRepository.save(module);
     }
 
     public String OtherModuleCreator(MultipartFile file, Long[] ids) throws IOException {

@@ -16,7 +16,7 @@ import java.util.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Module {
+public class Module implements Comparable<Module>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -99,5 +99,9 @@ public class Module {
             result  = result.replaceAll(img, images.get(img).toString());
         }
         return result;
+    }
+    public int compareTo(Module t)
+    {
+        return this.id.compareTo(t.id);
     }
 }

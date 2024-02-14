@@ -104,13 +104,6 @@ public class CreateAndSaveService {
     }
     public void SaveUnit(ModuleUnit moduleUnit)
     {
-        /*
-        if(moduleUnit.getImageId() != null)
-        {
-            Image image = imageService.getImage(Long.parseLong(moduleUnit.getImageId()));
-            image.setUnit(moduleUnit);
-            imageService.UpdateUnit(image);
-        }*/
         mdlRep.UpdateUnit(moduleUnit.getImageId(), moduleUnit.getTextContent(),
                 moduleUnit.getOtherJsonOption(), moduleUnit.getTag(), moduleUnit.getId());
     }

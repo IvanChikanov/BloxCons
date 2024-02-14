@@ -15,6 +15,21 @@
                 addButtonsEvents(["new_image_button", "new_other_class"]);
                 main = addForm(document.getElementById("main"));
                 child = addForm(document.getElementById("child"));
+                document.getElementById("oms").addEventListener("change", (e)=>{
+                    selected = [];
+                    for(let option of e.target.selectedOptions)
+                    {
+                        console.log(option.value);
+                        selected.push(option.value);
+                    }
+                    let fd = new FormData();
+                    fd.append("otherIds", selected);
+                    fd.append("moduleId", id);
+                    fetch("/js/update_other_dependencies", {
+                        method: "POST",
+                        body: fd
+                    }).then(result => result.text()).then(text => console.log(text));
+                })
             });
             function newFormClick(e)
             {

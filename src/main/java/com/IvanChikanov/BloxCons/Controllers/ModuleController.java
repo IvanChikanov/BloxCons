@@ -7,10 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,6 +42,18 @@ public class ModuleController {
     {
         byte[] other = moduleService.createOtherFile(id);
         return ResponseEntity.ok().headers(getJsHeaders(other.length)).body(other);
+    }
+    @PostMapping("/update_other_dependencies")
+    public ResponseEntity<String> updateOthers(@RequestParam("otherIds") Long[] ids, @RequestParam("moduleId") Long moduleId)
+    {
+        try {
+            moduleService.UpdateOtherModulesSet(ids, moduleId);
+            return ResponseEntity.ok("ok");
+        }
+        catch (Exception ex)
+        {
+            return ResponseEntity.ok(ex.getMessage());
+        }
     }
     private HttpHeaders getJsHeaders(int length)
     {
