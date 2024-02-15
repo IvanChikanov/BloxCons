@@ -19,7 +19,6 @@
                     selected = [];
                     for(let option of e.target.selectedOptions)
                     {
-                        console.log(option.value);
                         selected.push(option.value);
                     }
                     let fd = new FormData();
@@ -35,7 +34,7 @@
             {
                 e.preventDefault();
                 let array = e.target.dataset.type == "other"? otherClasses : images; 
-                array.push(addForm(e.target.parentNode, e.target));
+                array.push(addForm(e.target.parentNode, e.target));/*
                 let delButton = document.createElement("BUTTON");
                     delButton.innerText = "X";
                     delButton.classList.add("absolute");
@@ -45,7 +44,7 @@
                     delButton.style.left = e.target.getBoundingClientRect().left + 
                     (e.target.getBoundingClientRect().width - delButton.getBoundingClientRect().width) + "px";
                     e.target.onmouseleave = ()=>{ document.body.removeChild(delButton)};
-                });
+                });*/
             }
             function addForm(parent, child = null)
             {

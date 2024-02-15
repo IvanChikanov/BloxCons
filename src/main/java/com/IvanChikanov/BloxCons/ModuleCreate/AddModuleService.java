@@ -42,7 +42,7 @@ public class AddModuleService {
         moduleData.put("display", new ArrayList<>(List.of(module.getDisplayName())));
         moduleData.put("main", new ArrayList<>(List.of(module.getName()+"~~"+module.getId())));
         moduleData.put("brother",new ArrayList<>(List.of(module.getBrother().getName()+"~~"+module.getBrother().getId())));
-        moduleData.put("otherClasses", module.getOther().stream()
+        moduleData.put("otherClasses", module.getOther().stream().sorted()
                 .map(other -> other.getName()+"~~"+other.getId()).collect(Collectors.toList()));
         moduleData.put("otherModules", module.getOtherModules().stream()
                 .map(generalScript -> generalScript.getId().toString())
