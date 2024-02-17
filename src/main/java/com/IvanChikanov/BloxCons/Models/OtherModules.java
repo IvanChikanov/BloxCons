@@ -41,6 +41,11 @@ public class OtherModules {
         this.name = file.getOriginalFilename();
         this.displayName = this.name.split(".js")[0];
     }
+    public OtherModules(Resource resource) throws IOException {
+        this.code = ReadJs(resource);
+        this.name = resource.getFilename();
+        this.displayName = this.name.split(".js")[0];
+    }
     public void AddModules(OtherModules om)
     {
         this.modulesSet.add(om);
