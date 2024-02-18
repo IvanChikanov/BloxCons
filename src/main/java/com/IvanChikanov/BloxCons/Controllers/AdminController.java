@@ -4,6 +4,7 @@ import com.IvanChikanov.BloxCons.Models.Module;
 import com.IvanChikanov.BloxCons.Models.OtherModules;
 import com.IvanChikanov.BloxCons.Repositories.ModuleRepository;
 import com.IvanChikanov.BloxCons.Services.ModuleService;
+import com.IvanChikanov.BloxCons.StarApp.StartAppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -24,6 +25,9 @@ public class AdminController {
     @Autowired
     private ModuleService ms;
 
+    @Autowired
+    private StartAppService startAppService;
+
     @GetMapping("/get_js/{module_id}")
     public ResponseEntity<Module> getJS(@PathVariable Long module_id)
     {
@@ -37,8 +41,9 @@ public class AdminController {
         return "addmodule";
     }
     @GetMapping("/other_add")
-    public String getOtherScriptPage(Model model)
+    public String getOtherScriptPage(Model model) throws IOException
     {
+        startAppService.GetReservedFiles();
         model.addAttribute("otherModules", ms.getOtherModuleList());
         return "other_page";
     }

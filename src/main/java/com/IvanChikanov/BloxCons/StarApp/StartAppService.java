@@ -22,14 +22,13 @@ import java.util.zip.ZipInputStream;
 public class StartAppService {
 
     private Set<InsideFile> sortedFiles = new HashSet<>();
-    private String peacePath = "classpath:/static/reservedOtherModules/";
+    private String peacePath = "classpath:/static/reserved_other_modules/";
     @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
     private OtherModulesRepo otherModulesRepo;
 
-    @PostConstruct
     public void GetReservedFiles() throws IOException
     {
         this.createInsideFiles();
