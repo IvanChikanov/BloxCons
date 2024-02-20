@@ -66,6 +66,7 @@ public class PageController {
     @ResponseBody
     public ResponseEntity<String> updateCells(@RequestBody Cell[] cells)
     {
+        System.out.println(cells.length);
         createServ.updateCells(cells);
         return ResponseEntity.ok().build();
     }
@@ -122,5 +123,12 @@ public class PageController {
     public void delUnit(@PathVariable Long id)
     {
         createServ.deleteUnit(id);
+    }
+
+    @GetMapping("/pages/delete_grid/{id}")
+    @ResponseBody
+    public void delGrid(@PathVariable Long id)
+    {
+        createServ.deleteGrid(id);
     }
 }

@@ -39,4 +39,8 @@ public class Page {
         grid.setPage(this);
         grid.setNumber(this.grids.size());
     }
+    public void deleteGrid(Grid grid)
+    {
+        this.grids.remove(grid);
+    }
 }

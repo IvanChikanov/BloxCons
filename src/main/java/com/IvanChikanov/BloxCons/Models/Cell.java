@@ -19,13 +19,13 @@ public class Cell implements Comparable<Cell>{
     private Long id;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REFRESH)
     private Grid grid;
 
     private int number;
     private String moduleLink;
 
-    @OneToMany(mappedBy = "cell", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "cell", cascade = {CascadeType.PERSIST, CascadeType.ALL})
     private Set<ModuleUnit> moduleUnits;
 
     public Cell(Grid grid, int num)

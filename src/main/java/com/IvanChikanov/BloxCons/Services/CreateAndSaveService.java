@@ -47,10 +47,6 @@ public class CreateAndSaveService {
         inBase.setMath(buff.getMath());
         pageRepository.save(inBase);
     }
-    public List<String> saveCells(Long pageId)
-    {
-        return null;
-    }
     public Grid saveGrid(Long page_id, int rows)
     {
         Page page = pageRepository.findById(page_id).get();
@@ -79,10 +75,17 @@ public class CreateAndSaveService {
 
     public void deleteCell(Long id)
     {
-        Cell cell = cellRepository.findById(id).get();
-        List<ModuleUnit> units = mdlRep.getModels(cell);
-        mdlRep.deleteAll(units);
-        cellRepository.deleteById(cell.getId());
+        try {
+            Cell cell = cellRepository.findById(id).get();
+            cell.getGrid().deleteCell(cell);
+            List<ModuleUnit> units = mdlRep.getModels(cell);
+            mdlRep.deleteAll(units);
+            cellRepository.deleteById(id);
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.getMessage());
+        }
     }
 
     public ModuleUnit getEmptyUnit(Long cell_id)
@@ -111,5 +114,9 @@ public class CreateAndSaveService {
     public List<ModuleUnit> getUnits(Long cell_id)
     {
         return mdlRep.getModels(cellRepository.findById(cell_id).get());
+    }
+    public void deleteGrid(Long id)
+    {
+        gridRepository.deleteById(id);
     }
 }

@@ -23,7 +23,7 @@ public class Grid implements Comparable<Grid>{
 
     private int number;
 
-    @OneToMany(mappedBy = "grid", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "grid", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
     private SortedSet<Cell> cellArray = new TreeSet<>();
 
     public Grid(int rowCount)
@@ -40,6 +40,10 @@ public class Grid implements Comparable<Grid>{
         cell.setNumber(cellArray.size() + 1);
         cellArray.add(cell);
         return cell;
+    }
+    public void deleteCell(Cell cell)
+    {
+        cellArray.remove(cell);
     }
     @Override
     public int compareTo(Grid o) {

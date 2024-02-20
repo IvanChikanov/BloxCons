@@ -21,6 +21,7 @@ class MainGrid extends MainGridFather
         let del = HTML.createAndAppend("BUTTON", delBlox);
         del.innerText = "Удалить";
         del.onclick = ()=>{
+            fetch(`/pages/delete_grid/${MainGrid.allGrids[list.value].id}`);
             document.body.removeChild(MainGrid.allGrids[list.value].gridElem);
             MainGrid.allGrids.splice(list.value, 1);
             if(MainGrid.allGrids.length > 0)
@@ -58,7 +59,6 @@ class MainGrid extends MainGridFather
         }
         this.gridElem.style.gridTemplateRows = `repeat(${this.cellArray.length}, auto)`;
         HTML.sendJSON(["pages","update_cells"], this.cellArray);
-
     }
 }
 export {MainGrid}
