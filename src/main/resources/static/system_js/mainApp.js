@@ -1,4 +1,4 @@
-import { HTMLFather as HTML } from "../system_js/HTMLFather.js";
+import { HTMLFather as HTML, HTMLFather } from "../system_js/HTMLFather.js";
 import { MainGrid } from "../system_js/mainGrid.js";
 class App 
 {
@@ -7,6 +7,11 @@ class App
     static THEME;
     static isMath;
     static tools;
+    static timeoutId;
+    static framesId;
+    static sizeTools = 1;
+    static percents = -50;
+    static unhide;
     static preparedToStart(data)
     {
         this.id = data.id;
@@ -14,6 +19,7 @@ class App
         this.isMath = data.math;
         App.theme(data.theme);
         this.createGridPanel();
+        this.toolsHider();
         for(let gr of data.grids)
         {
             new MainGrid(gr);
@@ -80,6 +86,7 @@ class App
             a.click();
            }).catch( exept => console.log(exept));
         }
+        App.tools.style.transformOrigin = "left";
     }
     static changeTheme(e)
     {
@@ -109,6 +116,47 @@ class App
             grids: []  
         };
         await HTML.sendJSON(["save_page"], saveData);
+    }
+    static toolsHider()
+    {
+        this.timeoutId = setTimeout(()=>{
+            App.unhide = HTMLFather.create("BUTTON");
+            App.unhide.style = "position: fixed; bottom: 5px; left: 5px; width: 50px; height: 50px; border-radius: 25px; background:#ffffff29; backdrop-filter: blur(1px); box-shadow: 0 0 4px 2px gray;";
+            document.body.appendChild(App.unhide);
+            App.unhide.onclick = ()=>{
+                App.tools.style = "transform-origin: left;";
+                App.toolsHider();
+                document.body.removeChild(App.unhide);
+            };
+            App.framesId = requestAnimationFrame(()=>{
+                App.animation((q)=>{
+                    if(q > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false
+                    };
+                }, (size)=> {return size - 0.08}, (pos)=> {return pos + 12})});
+        },
+        11000);
+    }
+    static animation(predicate, size, pos)
+    {
+        if(predicate(App.sizeTools))
+        {
+            App.sizeTools = size(App.sizeTools);
+            App.percents = pos(App.percents);
+            App.tools.style.transform = `translate(0, ${App.percents}%) scale(${App.sizeTools}, 1)`;
+            App.framesId = requestAnimationFrame(()=>{App.animation(predicate, size, pos)});
+        }
+        else
+        {
+            cancelAnimationFrame(App.framesId);
+            App.sizeTools = 1;
+            App.percents = -50;
+        }
     }
 }
 export {App}

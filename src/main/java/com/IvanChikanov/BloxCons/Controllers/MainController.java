@@ -1,5 +1,7 @@
 package com.IvanChikanov.BloxCons.Controllers;
 
+import com.IvanChikanov.BloxCons.Models.OtherModules;
+import com.IvanChikanov.BloxCons.Repositories.OtherModulesRepo;
 import com.IvanChikanov.BloxCons.Services.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,9 +17,14 @@ import java.util.List;
 @Controller
 public class MainController {
 
+    @Autowired
+    OtherModulesRepo otherModulesRepo;
+
     @GetMapping("/empty")
-    public String getEmptyCons()
+    public String getEmptyCons(Model model)
     {
+        OtherModules oms = otherModulesRepo.findByName("Windows.js");
+        model.addAttribute("windows", oms.getId());
         return "main_cons";
     }
 

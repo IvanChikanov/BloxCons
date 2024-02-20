@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>Создание ЭОМ</title>
     <link rel="stylesheet" href="../static/styles/style.css"/>
-    <script type="module">
+    <script type="module" th:inline="text">
         import {App} from "../static/system_js/mainApp.js";
         import {HTMLFather as HTML} from "../static/system_js/HTMLFather.js";
+        import {Windows} from "/js/get_other_script/[[${windows}]]";
         document.documentElement.setAttribute("theme", "system");
         window.addEventListener("load", ()=>{
             let form = HTML.createAndAppend("DIV");
@@ -34,7 +35,7 @@
                 let grid = HTML.create("div");
                 HTML.addStyles(["grid", "gapFivePix"],[grid]);
                 grid.style.gridTemplateColumns = "1";
-                let pop = HTML.createPopup();
+                let pop = new Windows("content-auto");
                 req.forEach(arr => {
                     let crDiv = HTML.createAndAppend("DIV", grid);
                     crDiv.style = "display:flex; justify-content: space-between; align-items: center;";
@@ -53,8 +54,8 @@
                         loadMinApp(arr[0])
                     };
                 });
-                pop.appendChild(grid);
-                
+                pop.setInside(grid);
+                pop.show();
             };
         });
         function loadApp(res)

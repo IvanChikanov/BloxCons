@@ -132,7 +132,7 @@ public class ModuleService implements FileCreator {
             codeText = codeText.concat("let mdl = ");
             codeText = codeText.concat(module.getCode()
                     .replaceAll("/load_image/", "./media/") + "\n");
-            codeText = codeText.concat(module.getOther().stream()
+            codeText = codeText.concat(module.getOther().stream().sorted()
                     .map(otherMd -> otherMd.getCode() + "\n").collect(Collectors.joining()));
             codeText = codeText.concat("export{mdl}");
             files.put("system/" + module.getName(), codeText.getBytes(StandardCharsets.UTF_8));

@@ -36,7 +36,7 @@
     --secondColor: #5AB52F;
     --insideInput: white;
     --gradic: linear-gradient(90deg, #5AB52F, #5AB52F);
-    --body-back-img: url(../images/green.png);
+    --body-back-img: url(../images/backgrounds/green.png);
 }
 :root[theme="OVZ"]
 {
