@@ -6,16 +6,18 @@ class Cell extends CellFather
         super(grid, data);
         this.createTools()
     }
-    createElement(mdl)
+    /*
+    createElement()
     {
         this.inside = HTML.createAndAppend("DIV", this.getGrid().gridElem);
-        if(mdl == null)
+        if(this.moduleLink == null)
         {
             this.inside.style.gridArea = this.editGridArea();
             HTML.addStyles(["grid", "emptyCell", "zIndex50"], [this.inside]);
             let insideButton = HTML.createAndAppend("BUTTON", this.inside);
             insideButton.innerText = "Загрузить модуль";
             HTML.addStyles(["justifySelfCenter", "alignSelfCenter"], [insideButton]);
+            console.log(this.getGrid().cellCount);
             insideButton.onclick = async ()=>{
                 let req = await fetch("/js/list");
                 let res = await req.json();
@@ -38,10 +40,10 @@ class Cell extends CellFather
         }
         else
         {
-            this.moduleLink = mdl;
-            this.loadModule(mdl)
+            this.loadModule(this.getModulePath(this.moduleLink));
         }
     }
+    */
     createTools()
     {
         this.tools = HTML.createAndAppend("DIV", this.getGrid().gridElem);
@@ -61,11 +63,9 @@ class Cell extends CellFather
         HTML.addStyles(["oneGridTool", "justifySelfCenter", "alignSelfCenter"], [del, add])
         this.tools.style.gridArea = this.editGridArea();
     }
-    async loadModule(moduleId)
+    async loadModule(path)
     {
-        let m = await import(`/js/get/${moduleId}`);
-        let cls = new m.mdl();
-        this.replaceElement(await cls.init(this.id));
+        let cls = await super.loadModule(path);
         let tools = cls.getTools?.().toolsUnits;
         if(tools)
         {
@@ -86,6 +86,53 @@ class Cell extends CellFather
         this.number = newPosition + 1;
         this.inside.style.gridArea = this.editGridArea();
         this.tools.style.gridArea = this.editGridArea();
+    }
+    getModulePath(moduleId)
+    {
+        if(moduleId == null)
+        {
+            return null;
+        }
+        return `/js/get/${moduleId}`;
+    }
+    getEmpty(cellGrid, cellInstance)
+    {
+        let obj =  {
+            test: cellGrid,
+            init: async function(){
+                let insideParent = HTML.create("DIV");
+                HTML.addStyles(["grid", "emptyCell", "zIndex50"], [insideParent]);
+                let insideButton = HTML.createAndAppend("BUTTON", insideParent);
+                insideButton.innerText = "Загрузить модуль";
+                HTML.addStyles(["justifySelfCenter", "alignSelfCenter"], [insideButton]);
+                insideButton.onclick = async ()=>{
+                    let req = await fetch("/js/list");
+                    let res = await req.json();
+                    cellInstance.popup = HTML.createPopup();
+                    let moduls = HTML.createAndAppend("DIV", cellInstance.popup);
+                    HTML.addStyles(["grid", "gapFivePix"], [moduls]);
+                    moduls.style.gridTemplateColumns = "repeat(3, auto)";
+                    res.forEach(arr => {
+                        let b = HTML.createAndAppend("BUTTON", moduls);
+                        b.innerText = arr[1];
+                        b.dataset.id = arr[0];
+                        b.dataset.grid = cellInstance.editGridArea();
+                        b.onclick = async (e)=>{
+                            cellInstance.moduleLink = arr[0];
+                            await HTML.sendJSON(["pages","update_cells"], [cellInstance]);
+                            cellInstance.loadModule(cellInstance.getModulePath(cellInstance.moduleLink))};
+                    });}
+                let mobs = new MutationObserver(follow => {
+                    cellGrid.createCell();
+                    mobs.disconnect();
+                });
+                mobs.observe(cellGrid.gridElem, {childList: true});
+                return insideParent;
+            },
+            needWaiting: false
+        };
+        obj.test = cellGrid;
+        return obj;
     }
 }
 export {Cell}

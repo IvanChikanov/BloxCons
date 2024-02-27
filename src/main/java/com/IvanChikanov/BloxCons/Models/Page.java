@@ -35,12 +35,22 @@ public class Page {
     }
     public void AddGrid(Grid grid)
     {
+        int lastNumber;
+        if(this.grids.size() > 0)
+        {
+            lastNumber = this.grids.last().getNumber() + 1;
+        }
+        else
+        {
+            lastNumber = 1;
+        }
         this.grids.add(grid);
         grid.setPage(this);
-        grid.setNumber(this.grids.size());
+        grid.setNumber(lastNumber);
     }
     public void deleteGrid(Grid grid)
     {
         this.grids.remove(grid);
     }
+
 }

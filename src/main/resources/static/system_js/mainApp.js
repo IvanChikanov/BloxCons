@@ -1,31 +1,24 @@
 import { HTMLFather as HTML, HTMLFather } from "../system_js/HTMLFather.js";
 import { MainGrid } from "../system_js/mainGrid.js";
-class App 
+import { App as AppSuper } from "../system_js/mainApp.min.js";
+class App extends AppSuper
 {
-    static id;
-    static name;
-    static THEME;
-    static isMath;
-    static tools;
-    static timeoutId;
-    static framesId;
-    static sizeTools = 1;
-    static percents = -50;
-    static unhide;
-    static preparedToStart(data)
+    timeoutId;
+    framesId;
+    sizeTools = 1;
+    percents = -50;
+    unhide;
+    constructor(data)
     {
-        this.id = data.id;
-        this.name = data.name;
-        this.isMath = data.math;
-        App.theme(data.theme);
+        super(data);
         this.createGridPanel();
         this.toolsHider();
-        for(let gr of data.grids)
-        {
-            new MainGrid(gr);
-        }
     }
-    static createGridPanel()
+    createGrid(gridData)
+    {
+        new MainGrid(gridData);
+    }
+    createGridPanel()
     {
         this.tools = HTML.createAndAppend("DIV");
         HTML.addStyles(["grid","fixed", "boxShadowCenter","opacityBlack", "leftSticky", "gapFivePix", "padding5px", "bRadius04rem", "zIndex500"], [this.tools]);
@@ -60,11 +53,11 @@ class App
             let store = {};
             let goButton = HTML.createAndAppend("BUTTON", popup);
             goButton.innerText = "Создать страницу";
-            goButton.addEventListener("click", async ()=>{HTML.getValueAction(count, store, "count"); new MainGrid(await HTML.getJSON(["save_mg", App.id, store.count])); document.body.removeChild(popup.parentNode);});
+            goButton.addEventListener("click", async ()=>{HTML.getValueAction(count, store, "count"); new MainGrid(await HTML.getJSON(["save_mg", this.id, store.count])); MainGrid.allGrids[MainGrid.activePage].setActive(); document.body.removeChild(popup.parentNode);});
         };
         let mathjax = HTML.createAndAppend("BUTTON", this.tools);
         mathjax.innerText = "Math";
-        if(App.isMath)
+        if(this.isMath)
         {
             mathjax.classList.add("bactive");
         }
@@ -72,7 +65,7 @@ class App
         {
             this.isMath = this.isMath?false:true;
             e.target.classList.toggle("bactive");
-            App.save();
+            this.save();
         }
         let showJSON = HTML.createAndAppend("BUTTON", this.tools);
         showJSON.innerText = "Скачать ZIP";
@@ -86,50 +79,44 @@ class App
             a.click();
            }).catch( exept => console.log(exept));
         }
-        App.tools.style.transformOrigin = "left";
+        this.tools.style.transformOrigin = "left";
     }
-    static changeTheme(e)
+    changeTheme(e)
     {
         let rootStyles = getComputedStyle(document.documentElement);
-        App.theme(e.target.dataset.color);
+        this.theme(e.target.dataset.color);
         let changeThemeEvent = new CustomEvent("changeTheme", 
         { detail: { 
             main: rootStyles.getPropertyValue('--mainColor'),
             second: rootStyles.getPropertyValue('--secondColor')
         }});
         window.dispatchEvent(changeThemeEvent);
-        App.save();
+        this.save();
     }
-    static theme(themeName)
-    {
-        document.documentElement.removeAttribute("theme");
-        document.documentElement.setAttribute("theme", themeName);
-        App.THEME = themeName;
-    }
-    static async save()
+    async save()
     {
         let saveData = {
-            id: App.id,
-            name: App.name,
-            theme: App.THEME,
-            math: App.isMath,
+            id: this.id,
+            name: this.name,
+            theme: this.THEME,
+            math: this.isMath,
             grids: []  
         };
         await HTML.sendJSON(["save_page"], saveData);
     }
-    static toolsHider()
+    toolsHider()
     {
         this.timeoutId = setTimeout(()=>{
-            App.unhide = HTMLFather.create("BUTTON");
-            App.unhide.style = "position: fixed; bottom: 5px; left: 5px; width: 50px; height: 50px; border-radius: 25px; background:#ffffff29; backdrop-filter: blur(1px); box-shadow: 0 0 4px 2px gray;";
-            document.body.appendChild(App.unhide);
-            App.unhide.onclick = ()=>{
-                App.tools.style = "transform-origin: left;";
-                App.toolsHider();
-                document.body.removeChild(App.unhide);
+            this.unhide = HTMLFather.create("BUTTON");
+            this.unhide.style = "position: fixed; bottom: 5px; left: 5px; width: 50px; height: 50px; border-radius: 25px; background:#ffffff29; backdrop-filter: blur(1px); box-shadow: 0 0 4px 2px gray;";
+            document.body.appendChild(this.unhide);
+            this.unhide.onclick = ()=>{
+                this.tools.style = "transform-origin: left;";
+                this.toolsHider();
+                document.body.removeChild(this.unhide);
             };
-            App.framesId = requestAnimationFrame(()=>{
-                App.animation((q)=>{
+            this.framesId = requestAnimationFrame(()=>{
+                this.animation((q)=>{
                     if(q > 0)
                     {
                         return true;
@@ -142,20 +129,20 @@ class App
         },
         11000);
     }
-    static animation(predicate, size, pos)
+    animation(predicate, size, pos)
     {
-        if(predicate(App.sizeTools))
+        if(predicate(this.sizeTools))
         {
-            App.sizeTools = size(App.sizeTools);
-            App.percents = pos(App.percents);
-            App.tools.style.transform = `translate(0, ${App.percents}%) scale(${App.sizeTools}, 1)`;
-            App.framesId = requestAnimationFrame(()=>{App.animation(predicate, size, pos)});
+            this.sizeTools = size(this.sizeTools);
+            this.percents = pos(this.percents);
+            this.tools.style.transform = `translate(0, ${this.percents}%) scale(${this.sizeTools}, 1)`;
+            this.framesId = requestAnimationFrame(()=>{this.animation(predicate, size, pos)});
         }
         else
         {
-            cancelAnimationFrame(App.framesId);
-            App.sizeTools = 1;
-            App.percents = -50;
+            cancelAnimationFrame(this.framesId);
+            this.sizeTools = 1;
+            this.percents = -50;
         }
     }
 }

@@ -20,29 +20,27 @@ class MainGrid extends MainGridFather
 
         let del = HTML.createAndAppend("BUTTON", delBlox);
         del.innerText = "Удалить";
-        del.onclick = ()=>{
-            fetch(`/pages/delete_grid/${MainGrid.allGrids[list.value].id}`);
+        del.onclick = ()=>{ 
+            fetch(`/pages/delete_grid/${MainGrid.allGrids[list.value].id}`);          
             document.body.removeChild(MainGrid.allGrids[list.value].gridElem);
             MainGrid.allGrids.splice(list.value, 1);
-            if(MainGrid.allGrids.length > 0)
-            {
-                MainGrid.activePage = 0;
-                MainGrid.allGrids[0].setActive();
-            }
+            MainGrid.show(0, true);
         };
         return delBlox;
     }
-    createCell(data)
+    loadAllCellsInstances()
     {
-        for(let i = 1; i <= data.cellArray.length; i++)
+        for(let cellData of this.data.cellArray)
         {
-            this.cellArray.push(new Cell(this, data.cellArray[i-1]));
+            this.cellArray.push(new Cell(this, cellData));
         }
+        this.cellArray[this.cellCount].createElement();
     }
     async addNextCell(cell)
     {
-        this.cellArray.splice(this.cellArray.indexOf(cell) + 1, 0, 
-            new Cell(this, await HTML.getJSON(["pages","new_cell", this.id])));        
+        let newCell = new Cell(this, await HTML.getJSON(["pages","new_cell", this.id]));
+        this.cellArray.splice(this.cellArray.indexOf(cell) + 1, 0, newCell);   
+        newCell.createElement();    
         this.updateGrid();
     }
     async deleteCell(cell)

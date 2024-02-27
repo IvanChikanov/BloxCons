@@ -19,7 +19,11 @@ public class MainController {
 
     @Autowired
     OtherModulesRepo otherModulesRepo;
-
+    @GetMapping("/")
+    public String Redirect()
+    {
+        return "redirect:/empty";
+    }
     @GetMapping("/empty")
     public String getEmptyCons(Model model)
     {

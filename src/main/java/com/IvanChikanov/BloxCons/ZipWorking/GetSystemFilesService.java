@@ -9,6 +9,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public class GetSystemFilesService implements IGetFiles {
 
     private void FileToMapEntry(Resource resource, String folderName) throws IOException
     {
-        try(BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream())))
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8)))
         {
             StringBuilder sb = new StringBuilder();
             int character;

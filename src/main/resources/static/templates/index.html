@@ -9,7 +9,7 @@
             import {HTMLFather as HTML} from "../static/system_js/HTMLFather.js";
             window.addEventListener("load", ()=>{
                 fetch("data.json").then(response => response.json()).then(json =>{
-                    App.preparedToStart(json);
+                    new App(json);
                 }).catch(er => console.error(er));
             });
         </script>
