@@ -16,7 +16,7 @@ class ToolsKeeper
     createButton(toolUnit)
     {
         let button = HTML.create("DIV");
-        button.innerHTML = "src" in toolUnit? `<img src="${toolUnit.src}">`: toolUnit.title[0].toUpperCase();
+        button.innerHTML = "src" in toolUnit? `<img src="${toolUnit.src}" style="max-width:80%; max-height:80%;">`: toolUnit.title[0].toUpperCase();
         button.classList.add("oneGridTool");
         button.style = "display: flex; align-items:center; justify-content:center;";
         button.onclick = toolUnit.call;

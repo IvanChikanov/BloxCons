@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,12 @@ public class GetSystemFilesService implements IGetFiles {
         for(String[] path : folders)
         {
             Resource[] jsDir = resourcePatternResolver.getResources("classpath:/static/" + path[0] + "/*");
+            if(path[0].equals("system_js"))
+            {
+                jsDir = Arrays.stream(jsDir).
+                        filter(resource -> resource.getFilename().contains(".min.")).
+                        toArray(Resource[]::new);
+            }
             for(var res: jsDir)
             {
                 FileToMapEntry(res, path[1]);

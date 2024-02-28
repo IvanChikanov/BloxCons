@@ -38,7 +38,6 @@ public class CreateAndSaveService {
     public Page loadSavedPage(Long id)
     {
         Page p =  pageRepository.findById(id).get();
-        System.out.println(p.getGrids().size());
         return p;
     }
     public void saveGeneralPage(Page buff)
@@ -120,7 +119,6 @@ public class CreateAndSaveService {
     {
         Grid findedGrid = gridRepository.findById(id).get();
         Page page = findedGrid.getPage();
-
         gridRepository.deleteById(id);
     }
 }
