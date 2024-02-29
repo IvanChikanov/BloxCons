@@ -31,9 +31,9 @@ public class CreateAndSaveService {
         Page savedPage = pageRepository.save(page);
         return savedPage;
     }
-    public List<String[]> loadAllPages()
+    public List<String[]> loadAllPages(String text)
     {
-        return pageRepository.getPageList();
+        return pageRepository.getPageList(text);
     }
     public Page loadSavedPage(Long id)
     {

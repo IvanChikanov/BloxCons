@@ -6,6 +6,7 @@ import com.IvanChikanov.BloxCons.ZipWorking.ZipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,11 +28,11 @@ public class PageController {
     {
         return createServ.createPage(name);
     }
-    @GetMapping("/load_pages")
+    @PostMapping("/load_pages")
     @ResponseBody
-    public List<String[]> loadPageList()
+    public List<String[]> loadPageList(@RequestBody @Nullable String text)
     {
-        List<String[]> p = createServ.loadAllPages();
+        List<String[]> p = createServ.loadAllPages(text);
         return p;
     }
     @GetMapping("/load_page/{id}")

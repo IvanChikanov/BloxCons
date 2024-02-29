@@ -8,6 +8,8 @@
         import {App} from "../static/system_js/mainApp.js";
         import {HTMLFather as HTML} from "../static/system_js/HTMLFather.js";
         import {Windows} from "/js/get_other_script/[[${windows}]]";
+        var intervalId;
+        var scrollDiv;
         document.documentElement.setAttribute("theme", "system");
         window.addEventListener("load", ()=>{
             let form = HTML.createAndAppend("DIV");
@@ -30,32 +32,19 @@
             let load = HTML.createAndAppend("Button", form);
             load.innerText = "Загрузить";
             load.onclick = async ()=>{
-                let res = await fetch("/load_pages");
-                let req = await res.json();
                 let grid = HTML.create("div");
                 HTML.addStyles(["grid", "gapFivePix"],[grid]);
                 grid.style.gridTemplateColumns = "1";
+                grid.style.gridTemplateRows = "auto auto";
                 let pop = new Windows("content-auto");
-                req.forEach(arr => {
-                    let crDiv = HTML.createAndAppend("DIV", grid);
-                    crDiv.style = "display:flex; justify-content: space-between; align-items: center;";
-                    let span = HTML.createAndAppend("SPAN", crDiv);
-                    span.innerText = arr[1];
-                    let but = HTML.createAndAppend("BUTTON", crDiv);
-                    but.innerText = "Загрузить";
-                    but.onclick = async ()=>{
-                        let req = await fetch("/load_page/" + arr[0]);
-                        let result = await req.json();
-                        loadApp(result);                        
-                    };
-                    let player = HTML.createAndAppend("BUTTON", crDiv);
-                    player.innerText = "Плеер";
-                    player.onclick = ()=>{
-                        loadMinApp(arr[0])
-                    };
-                });
+                let findInput = HTML.createAndAppend("INPUT", grid);
+                findInput.value = "";
+                findInput.oninput = sendFind;
+                scrollDiv = HTML.createAndAppend("DIV", grid);
+                HTML.addStyles(["grid", "gapFivePix", "scrollY"],[scrollDiv]);
                 pop.setInside(grid);
                 pop.show();
+                findInput.dispatchEvent(new Event("input"));
             };
         });
         function loadApp(res)
@@ -66,6 +55,39 @@
         function loadMinApp(id)
         {
             window.open(`./player/${id}`, "_blank");
+        }
+        async function sendFind(e)
+        {
+            clearTimeout(intervalId);
+            intervalId = setTimeout(async ()=>{
+                scrollDiv.innerHTML = "";
+                let res = await fetch("/load_pages", {
+                    method: "POST",
+                    body: e.target.value
+                });
+                let req = await res.json();
+                req.forEach(arr => {
+                    let crDiv = HTML.createAndAppend("DIV", scrollDiv);
+                    crDiv.style = "display:flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--secondColor); padding-right: 5px; max-height:100px;";
+                    let span = HTML.createAndAppend("SPAN", crDiv);
+                    span.innerText = arr[1];
+                    let butts = HTML.createAndAppend("DIV", crDiv);
+                    HTML.addStyles(["grid", "gapFivePix"],[butts]);
+                    butts.style.gridAutoFlow = "column";
+                    let but = HTML.createAndAppend("BUTTON", butts);
+                    but.innerText = "Загрузить";
+                    but.onclick = async ()=>{
+                        let req = await fetch("/load_page/" + arr[0]);
+                        let result = await req.json();
+                        loadApp(result);                        
+                    };
+                    let player = HTML.createAndAppend("BUTTON", butts);
+                    player.innerText = "Плеер";
+                    player.onclick = ()=>{
+                        loadMinApp(arr[0]);
+                    };
+                });
+            }, 500);
         }
     </script>
 </head>
